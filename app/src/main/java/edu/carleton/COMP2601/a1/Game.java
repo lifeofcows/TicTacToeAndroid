@@ -5,5 +5,13 @@ package edu.carleton.COMP2601.a1;
  */
 
 public class Game {
+    boolean boxPicked;
+
+    Thread running = new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    });
 
 }
