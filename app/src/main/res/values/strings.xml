@@ -2,4 +2,6 @@
     <string name="app_name">COMP2601A1-101000589</string>
     <string name="userwin">Game is over. You won!</string>
     <string name="userloss">Game is over. You lost!</string>
+    <string name="neutralgame">Game is over. It is a tie!</string>
+
 </resources>
