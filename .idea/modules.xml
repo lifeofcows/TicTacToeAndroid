@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/COMP2601A1-101000589.iml" filepath="$PROJECT_DIR$/COMP2601A1-101000589.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TicTacToeAndroid.iml" filepath="$PROJECT_DIR$/TicTacToeAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
