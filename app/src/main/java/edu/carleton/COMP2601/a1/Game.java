@@ -16,10 +16,6 @@ public class Game {
         checkDiagonals();
         checkHorizontals();
         checkVerticals();
-
-        if (isAllFilled() == true) {
-            return 3;
-        }
         return 0;
     }
 
@@ -40,14 +36,5 @@ public class Game {
         //buttons 0, 3, 6 or 1, 4, 7 or 2, 5, 8
         //return 0 if n/a; 1 if player won and 2 if computer won
         return 0;
-    }
-
-    //checks if all spots are filled
-    public static boolean isAllFilled() {
-        if (MainActivity.buttonsActive == 9) {
-            MainActivity.threadActive = false; //set thread to inactive
-            return true;
-        }
-        return false;
     }
 }
