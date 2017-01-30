@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import static edu.carleton.COMP2601.a1.MainActivity.OMoves;
 import static edu.carleton.COMP2601.a1.MainActivity.XMoves;
+import static edu.carleton.COMP2601.a1.MainActivity.XOMoves;
 
 /**
  * Created by Owner on 2017-01-26.
@@ -13,7 +14,6 @@ import static edu.carleton.COMP2601.a1.MainActivity.XMoves;
 
 public class Game {
     //access elements from mainactivity, make judgement about the move, send back to MainActivity
-    int finished = 0;
     private static int[][] diagonalSet = {{0, 4, 8}, {2, 4, 6}};
     private static int[][] horizontalSet = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
     private static int[][] verticalSet = {{0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
@@ -28,6 +28,10 @@ public class Game {
         if (checkSpots(diagonalSet, OMoves) || checkSpots(horizontalSet, OMoves) || checkSpots(verticalSet, OMoves)) {
             System.out.println("Computer won this round");
             return 2;
+        }
+        if (XOMoves.isEmpty()){
+            System.out.println("No more moves to play, stalemate...");
+            return 3;
         }
         System.out.println("No one won this round");
         return 0;

@@ -1,5 +1,7 @@
 package edu.carleton.COMP2601.a1;
 
+//Developers: Zachary Seguin, Maxim Kuzmenko
+
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import static edu.carleton.COMP2601.a1.R.string.neutralgame;
@@ -28,16 +31,16 @@ public class MainActivity extends AppCompatActivity {
     public static boolean threadActive; //if thread is active, used in the Thread in this class, in Game.isAllFilled and in the click listener
     public static ArrayList<Integer> XMoves;
     public static ArrayList<Integer> OMoves;
-    public static ArrayList<Integer> XOMoves; //Will be full {0,1,2,3,4,5,6,7,8}
+    public static ArrayList<Integer> XOMoves; //Will be  full {0,1,2,3,4,5,6,7,8}
     private int gameResult;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        XMoves = new ArrayList<Integer>();
-        OMoves = new ArrayList<Integer>();
-        XOMoves = new ArrayList<Integer>();
+        XMoves = new ArrayList<Integer>(); //Stores moves made by player
+        OMoves = new ArrayList<Integer>(); //Stores moves made by Computer
+        XOMoves = new ArrayList<Integer>(); //Stores remaining available moves (buttons that have not been selected)
 
 
 
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         XOButtonInitClickListeners();
 
-        XObuttonsClickable(false);
+        XObuttonsClickable(false); //Disables buttons until player hits "Start"
 
         editText = (EditText) findViewById(R.id.editText);
         editText.setText("Click Start button to start game");
@@ -59,16 +62,13 @@ public class MainActivity extends AppCompatActivity {
         start.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //do start
-                if (!start.getText().equals("Running")) {
+                if (!start.getText().equals("Running")) { //This fills list with all available buttons.
                     for(int i=0; i<9; i++){
                         XOMoves.add(i);
                     }
 
-                    for(int i=0; i<XOMoves.size();i++){
-                        System.out.println(XOMoves.get(Integer.valueOf(i)));
-                    }
                     XObuttonsClickable(false);
-                    lastMove = 1;
+                    lastMove = 1; //Variable that determines who plays first (this indicates that the player starts)
                     XMoves.clear();
                     OMoves.clear();
                     start.setText("Running");
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public synchronized void run() {
                 try {
                     while (threadActive) {
-                        if (lastMove == 0) {
+                        if (lastMove == 0) { //If player played last, disable all buttons
                             XObuttonsClickable(false);
                         }
                         else {
@@ -107,12 +107,8 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
 
-                        for (int i = 0; i < 9; i++){
-                            if(XOMoves.indexOf(i) != -1){ //find next move for comp
-                                temp = i;
-                                break;
-                            }
-                        }
+                        Random r = new Random(); //Picks a random button to click from XOMoves
+                        temp = XOMoves.get(r.nextInt(XOMoves.size()));
 
                         final CountDownLatch latch = new CountDownLatch(1);
                         Runnable uiThread;
@@ -140,13 +136,13 @@ public class MainActivity extends AppCompatActivity {
     public void XObuttonsClickable(boolean val) {
         if (val == false) {
             System.out.println("Clicking is FALSE");
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < 9; i++) { //Disable all buttons
                 XObuttons[i].setClickable(false);
             }
         }
         else {
             System.out.println("Clicking is TRUE");
-            for (int i : XOMoves) {
+            for (int i : XOMoves) { //Enable all buttons
                 System.out.println(i + " is i");
                 XObuttons[i].setClickable(true);
             }
@@ -154,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void endGame(){
-        //System.out.println("Ending Game...");
         XOMoves.clear();
         XObuttonsClickable(false);
         threadActive = false;
@@ -178,216 +173,78 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void DisplayLists(){
-      //  System.out.println("Displaying lists...");
-       // System.out.println("XOMoves: " + XOMoves);
-    }
 
-    public void XOButtonInitClickListeners() { //shorten these methods if you know how to, idk how to do it properly
+    public void makeMove(int x){
+        if(lastMove == 1){
+            XObuttons[x].setImageResource(R.drawable.tictactoex); //set image resource
+            XObuttons[x].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
+            lastMove = 0;
+            XMoves.add(x);
+            XObuttonsClickable(false);
+        }
+        else {
+            XObuttons[x].setImageResource(R.drawable.tictactoeo); //set image resource
+            XObuttons[x].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
+            lastMove = 1;
+            OMoves.add(x);
+        }
+        System.out.println("Removing " + Integer.valueOf(x));
+        editText.setText("Button " + x + " Pressed");
+        XObuttons[x].setClickable(false); //make button unclickable after
+        XOMoves.remove(Integer.valueOf(x));
+    }
+    public void XOButtonInitClickListeners() {
         XObuttons[0].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[0].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[0].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(0);
-                    XObuttonsClickable(false);
-                }
-                else {
-                    XObuttons[0].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[0].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(0);
-                }
-                System.out.println("Removing " + Integer.valueOf(0));
-                DisplayLists();
-                editText.setText("Button 0 Pressed");
-                XObuttons[0].setClickable(false); //make button unclickable after
-                XOMoves.remove(Integer.valueOf(0));
+                makeMove(0);
             }
         });
 
         XObuttons[1].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[1].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[1].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(1);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[1].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[1].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(1);
-                }
-                System.out.println("Removing " + Integer.valueOf(1));
-                DisplayLists();
-                editText.setText("Button 1 Pressed");
-                XObuttons[1].setClickable(false);
-                XOMoves.remove(Integer.valueOf(1));
+                makeMove(1);
             }
         });
 
         XObuttons[2].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[2].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[2].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(2);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[2].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[2].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(2);
-                }
-                System.out.println("Removing " + Integer.valueOf(2));
-                DisplayLists();
-                editText.setText("Button 2 Pressed");
-                XObuttons[2].setClickable(false);
-                XOMoves.remove(Integer.valueOf(2));
+                makeMove(2);
             }
         });
 
         XObuttons[3].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[3].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[3].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(3);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[3].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[3].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(3);
-                }
-                System.out.println("Removing " + Integer.valueOf(3));
-                DisplayLists();
-                editText.setText("Button 3 Pressed");
-                XObuttons[3].setClickable(false);
-                XOMoves.remove(Integer.valueOf(3));
+                makeMove(3);
             }
         });
 
         XObuttons[4].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[4].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[4].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(4);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[4].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[4].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(4);
-                }
-                System.out.println("Removing " + Integer.valueOf(4));
-                DisplayLists();
-                editText.setText("Button 4 Pressed");
-                XObuttons[4].setClickable(false);
-                XOMoves.remove(Integer.valueOf(4));
+                makeMove(4);
             }
         });
 
         XObuttons[5].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[5].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[5].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(5);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[5].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[5].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(5);
-                }
-                System.out.println("Removing " + Integer.valueOf(5));
-                DisplayLists();
-                editText.setText("Button 5 Pressed");
-                XObuttons[5].setClickable(false);
-                XOMoves.remove(Integer.valueOf(5));
+                makeMove(5);
             }
         });
 
         XObuttons[6].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[6].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[6].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(6);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[6].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[6].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(6);
-                }
-                System.out.println("Removing " + Integer.valueOf(6));
-                DisplayLists();
-                editText.setText("Button 6 Pressed");
-                XObuttons[6].setClickable(false);
-                XOMoves.remove(Integer.valueOf(6));
+                makeMove(6);
             }
         });
 
         XObuttons[7].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[7].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[7].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(7);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[7].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[7].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(7);
-                }
-                System.out.println("Removing " + Integer.valueOf(7));
-                DisplayLists();
-                editText.setText("Button 7 Pressed");
-                XObuttons[7].setClickable(false);
-                XOMoves.remove(Integer.valueOf(7));
+                makeMove(7);
             }
         });
 
         XObuttons[8].setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(lastMove == 1){
-                    XObuttons[8].setImageResource(R.drawable.tictactoex); //set image resource
-                    XObuttons[8].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 0;
-                    XMoves.add(8);
-                    XObuttonsClickable(false);
-                }
-                else{
-                    XObuttons[8].setImageResource(R.drawable.tictactoeo); //set image resource
-                    XObuttons[8].setScaleType(ImageView.ScaleType.FIT_XY); //scale to fit button
-                    lastMove = 1;
-                    OMoves.add(8);
-                }
-                System.out.println("Removing " + Integer.valueOf(8));
-                DisplayLists();
-                editText.setText("Button 8 Pressed");
-                XObuttons[8].setClickable(false);
-                XOMoves.remove(Integer.valueOf(8));
+                makeMove(8);
             }
         });
     }
